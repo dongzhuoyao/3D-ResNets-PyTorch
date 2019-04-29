@@ -9,6 +9,12 @@ import json
 from utils import AverageMeter
 
 
+from json import JSONEncoder
+class MyEncoder(JSONEncoder):
+        def default(self, o):
+            return o.__dict__    
+
+
 def calculate_video_results(output_buffer, video_id, test_results, class_names):
     video_outputs = torch.stack(output_buffer)
     average_scores = torch.mean(video_outputs, dim=0)
@@ -26,7 +32,7 @@ def calculate_video_results(output_buffer, video_id, test_results, class_names):
 
 def test(data_loader, model, opt, class_names):
     print('test')
-
+    print(torch.__version__)
     model.eval()
 
     batch_time = AverageMeter()
@@ -56,7 +62,8 @@ def test(data_loader, model, opt, class_names):
             with open(
                     os.path.join(opt.result_path, '{}.json'.format(
                         opt.test_subset)), 'w') as f:
-                json.dump(test_results, f)
+                MyEncoder().encode(f)
+                json.dump(test_results, f, cls=MyEncoder)
 
         batch_time.update(time.time() - end_time)
         end_time = time.time()

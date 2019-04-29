@@ -1,4 +1,6 @@
 import json
+import os
+import sys
 
 import numpy as np
 import pandas as pd
@@ -22,11 +24,11 @@ class HMDBclassification(object):
         self.prediction = self._import_prediction(prediction_filename)
 
         if self.verbose:
-            print '[INIT] Loaded annotations from {} subset.'.format(subset)
+            print('[INIT] Loaded annotations from {} subset.'.format(subset))
             nr_gt = len(self.ground_truth)
-            print '\tNumber of ground truth instances: {}'.format(nr_gt)
+            print('\tNumber of ground truth instances: {}'.format(nr_gt))
             nr_pred = len(self.prediction)
-            print '\tNumber of predictions: {}'.format(nr_pred)
+            print('\tNumber of predictions: {}'.format(nr_pred))
 
     def _import_ground_truth(self, ground_truth_filename):
         """Reads ground truth file, checks if it is well formatted, and returns
@@ -53,7 +55,7 @@ class HMDBclassification(object):
         # Initialize data frame
         activity_index, cidx = {}, 0
         video_lst, label_lst = [], []
-        for videoid, v in data['database'].iteritems():
+        for videoid, v in data['database'].items():
             if self.subset != v['subset']:
                 continue
             this_label = v['annotations']['label']
@@ -89,7 +91,7 @@ class HMDBclassification(object):
 
         # Initialize data frame
         video_lst, label_lst, score_lst = [], [], []
-        for videoid, v in data['results'].iteritems():
+        for videoid, v in data['results'].items():
             for result in v:
                 label = self.activity_index[result['label']]
                 video_lst.append(videoid)
@@ -108,9 +110,9 @@ class HMDBclassification(object):
         hit_at_k = compute_video_hit_at_k(self.ground_truth,
                                           self.prediction, top_k=self.top_k)
         if self.verbose:
-            print ('[RESULTS] Performance on ActivityNet untrimmed video '
+            print('[RESULTS] Performance on ActivityNet untrimmed video '
                    'classification task.')
-            print '\tError@{}: {}'.format(self.top_k, 1.0 - hit_at_k)
+            print('\tError@{}: {}'.format(self.top_k, 1.0 - hit_at_k))
             #print '\tAvg Hit@{}: {}'.format(self.top_k, avg_hit_at_k)
         self.hit_at_k = hit_at_k
 
@@ -153,3 +155,13 @@ def compute_video_hit_at_k(ground_truth, prediction, top_k=3):
         avg_hits_per_vid[i] = np.mean([1 if this_label in pred_label else 0
                                        for this_label in gt_label])
     return float(avg_hits_per_vid.mean())
+
+
+if __name__ == '__main__':
+    ground_truth_path = sys.argv[1]
+    prediction_path = sys.argv[2]
+    subset = sys.argv[3]
+
+    hmdb_classification = HMDBclassification(ground_truth_path, prediction_path, subset, verbose=True, top_k=1)
+    hmdb_classification.evaluate()
+    print(hmdb_classification.hit_at_k)

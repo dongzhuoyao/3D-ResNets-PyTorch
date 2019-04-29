@@ -3,6 +3,8 @@ import os
 import sys
 import json
 import pandas as pd
+import random
+import numpy as np
 
 def convert_csv_to_dict(csv_dir_path, split_index):
     database = {}
@@ -14,25 +16,37 @@ def convert_csv_to_dict(csv_dir_path, split_index):
                            delimiter=' ', header=None)
         keys = []
         subsets = []
+
+        validation = []
+        validation_numbers = []
+        validation = np.array(data.index[data[1] == 1].tolist())
+        validation_numbers = random.sample(range(0, 69), 4)
+        validation = validation[validation_numbers].tolist()
+
+        count = 0
+
         for i in range(data.shape[0]):
             row = data.ix[i, :]
-            if row[1] == 0:
+            if i in validation:
+                subset = 'validation'
+            elif row[1] == 0:
                 continue
             elif row[1] == 1:
                 subset = 'training'
+
             elif row[1] == 2:
-                subset = 'validation'
+                subset = 'testing'
             
             keys.append(row[0].split('.')[0])
-            subsets.append(subset)        
-        
+            subsets.append(subset)   
+
         for i in range(len(keys)):
             key = keys[i]
             database[key] = {}
             database[key]['subset'] = subsets[i]
             label = '_'.join(filename.split('_')[:-2])
             database[key]['annotations'] = {'label': label}
-    
+
     return database
 
 def get_labels(csv_dir_path):
@@ -52,10 +66,12 @@ def convert_hmdb51_csv_to_activitynet_json(csv_dir_path, split_index, dst_json_p
 
     with open(dst_json_path, 'w') as dst_file:
         json.dump(dst_data, dst_file)
+        print("Gedaan")
 
 if __name__ == '__main__':
     csv_dir_path = sys.argv[1]
 
     for split_index in range(1, 4):
+        print("Ik doe iets")
         dst_json_path = os.path.join(csv_dir_path, 'hmdb51_{}.json'.format(split_index))
         convert_hmdb51_csv_to_activitynet_json(csv_dir_path, split_index, dst_json_path)
