@@ -168,7 +168,7 @@ def generate_model(opt):
         if opt.pretrain_path:
             print('loading pretrained model {}'.format(opt.pretrain_path))
             pretrain = torch.load(opt.pretrain_path)
-            assert opt.arch == pretrain['arch']
+            #assert opt.arch == pretrain['arch']
 
             model.load_state_dict(pretrain['state_dict'])
 
@@ -187,8 +187,9 @@ def generate_model(opt):
         if opt.pretrain_path:
             print('loading pretrained model {}'.format(opt.pretrain_path))
             pretrain = torch.load(opt.pretrain_path)
-            assert opt.arch == pretrain['arch']
+            #assert opt.arch == pretrain['arch']
 
+            print("pretrain", pretrain['state_dict'])
             model.load_state_dict(pretrain['state_dict'])
 
             if opt.model == 'densenet':

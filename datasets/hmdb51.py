@@ -71,6 +71,7 @@ def get_video_names_and_annotations(data, subset):
 
     for key, value in data['database'].items():
         this_subset = value['subset']
+        #print("This subset:", this_subset)
         if this_subset == subset:
             label = value['annotations']['label']
             video_names.append('{}/{}'.format(label, key))
@@ -130,7 +131,8 @@ def make_dataset(root_path, annotation_path, subset, n_samples_for_each_video,
                 sample_j['frame_indices'] = list(
                     range(j, min(n_frames + 1, j + sample_duration)))
                 dataset.append(sample_j)
-
+    #if subset == "validation":
+        #print("Dataset is:", dataset)
     return dataset, idx_to_class
 
 
