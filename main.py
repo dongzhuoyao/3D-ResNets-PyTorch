@@ -24,6 +24,8 @@ import test
 
 if __name__ == '__main__':
     opt = parse_opts()
+    #print(torch.__version__)
+    #exit()
     if opt.root_path != '':
         opt.video_path = os.path.join(opt.root_path, opt.video_path)
         opt.annotation_path = os.path.join(opt.root_path, opt.annotation_path)

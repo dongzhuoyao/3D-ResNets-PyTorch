@@ -170,7 +170,16 @@ def generate_model(opt):
             pretrain = torch.load(opt.pretrain_path)
             #assert opt.arch == pretrain['arch']
 
-            model.load_state_dict(pretrain['state_dict'])
+            # create new OrderedDict that does not contain `module.`
+            #from collections import OrderedDict
+            #new_pretrain = OrderedDict()
+            #for k, v in pretrain.items():
+            #    name = k[7:] # remove `module.`
+            #    new_pretrain[name] = v
+            # load params
+
+            print("PRETRAIN:", pretrain['state_dict'].keys())
+            model.load_state_dict(pretrain['state_dict'], strict=False)
 
             if opt.model == 'densenet':
                 model.module.classifier = nn.Linear(
