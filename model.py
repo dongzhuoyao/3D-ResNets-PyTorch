@@ -178,8 +178,23 @@ def generate_model(opt):
             #    new_pretrain[name] = v
             # load params
 
-            print("PRETRAIN:", pretrain['state_dict'].keys())
-            model.load_state_dict(pretrain['state_dict'], strict=False)
+            pretrained_dict = pretrain['state_dict']
+            # print("PRETRAIN BEFORE:", pretrained_dict.keys())
+            model_dict = model.state_dict()
+
+            print("Current model:", model.state_dict().keys())
+            print("Pretrained model:", pretrain['state_dict'].keys())
+
+            # 1. filter out unnecessary keys
+            pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+            # 2. overwrite entries in the existing state dict
+            print("Pretrained model after:", pretrained_dict.keys())
+            model_dict.update(pretrained_dict)
+            # 3. load the new state dict
+            model.load_state_dict(pretrained_dict, strict=False)
+
+
+            #print("PRETRAIN AFTER:", pretrained_dict.keys())
 
             if opt.model == 'densenet':
                 model.module.classifier = nn.Linear(

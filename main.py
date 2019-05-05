@@ -103,7 +103,9 @@ if __name__ == '__main__':
             weight_decay=opt.weight_decay,
             nesterov=opt.nesterov)
         scheduler = lr_scheduler.ReduceLROnPlateau(
-            optimizer, 'min', patience=opt.lr_patience)
+            optimizer, 
+            'min', 
+            patience=opt.lr_patience)
     if not opt.no_val:
         spatial_transform = Compose([
             Scale(opt.sample_size),
@@ -132,6 +134,8 @@ if __name__ == '__main__':
         model.load_state_dict(checkpoint['state_dict'])
         if not opt.no_train:
             optimizer.load_state_dict(checkpoint['optimizer'])
+
+    print("MODEL:", model.state_dict().keys())
 
     print('run')
     for i in range(opt.begin_epoch, opt.n_epochs + 1):
