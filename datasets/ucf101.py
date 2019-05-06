@@ -7,7 +7,7 @@ import functools
 import json
 import copy
 
-from utils import load_value_file
+from dataset_utils import load_value_file
 
 
 def pil_loader(path):

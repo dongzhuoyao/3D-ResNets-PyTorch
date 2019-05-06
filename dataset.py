@@ -90,7 +90,6 @@ def get_validation_set(opt, spatial_transform, temporal_transform,
             temporal_transform,
             target_transform,
             sample_duration=opt.sample_duration)
-        print("Validation set #dataset.py:", validation_data)
     return validation_data
 
 

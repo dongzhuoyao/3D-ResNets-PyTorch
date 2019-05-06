@@ -6,7 +6,7 @@ import os
 import sys
 import json
 
-from utils import AverageMeter
+from dataset_utils import AverageMeter
 
 
 from json import JSONEncoder

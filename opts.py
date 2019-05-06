@@ -1,21 +1,179 @@
 import argparse
 
+def str_to_bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def parse_opts():
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '-up', '--unsupervised_pretrain',
+        action='store_true',
+        help='If true, unsupervised pretraining on hmdb51 is performed.')
+
+    # TimeCycle 
+
+        # Datasets
+    parser.add_argument(
+        '-d', '--data', 
+        default='~/Afstudeerproject/data/hmdb_videos/jpg',
+        help='path to dataset', 
+        type=str)
+    parser.add_argument(
+        '-l', 
+        '--list', 
+        default='~/Afstudeerproject/data/hmdb_1.txt',
+        help='path to video list', 
+        type=str)
+    parser.add_argument(
+        '-j', 
+        '--workers', 
+        default=12, 
+        type=int, 
+        metavar='N',
+        help='number of data loading workers (default: 4)')
+    # Optimization options
+    parser.add_argument(
+        '--epochs', 
+        default=30, 
+        type=int, 
+        metavar='N',
+        help='number of total epochs to run')
+    parser.add_argument(
+        '--u_lr', 
+        '--unsupervised_learning_rate', 
+        default=2e-4, 
+        type=float,
+        metavar='LR', 
+        help='initial learning rate')
+    parser.add_argument(
+        '--u_momentum', 
+        default=0.5, 
+        type=float, 
+        metavar='M',
+        help='momentum')
+    parser.add_argument(
+        '--u_wd',
+        '--unsupervised_weight_decay',
+        default=0.0, 
+        type=float,
+        metavar='W', 
+        help='weight decay (default: 1e-4)')
+    # Checkpoints
+    parser.add_argument(
+        '-pc', 
+        '--path_checkpoint', 
+        default='~/Afstudeerproject/data/results_timecycle',
+        type=str, 
+        metavar='PATH',
+        help='path to save checkpoint (default: checkpoint)')
+    parser.add_argument(
+        '--resume', 
+        default='', type=str, metavar='PATH',
+        help='path to latest checkpoint (default: none)')
+    # Miscs
+    parser.add_argument(
+        '--manualSeed', type=int, help='manual seed')
+    parser.add_argument(
+        '-e', 
+        '--evaluate', 
+        dest='evaluate', 
+        action='store_true',
+        help='evaluate model on validation set')
+    parser.add_argument(
+        '--pretrained', 
+        default='', 
+        type=str, 
+        metavar='PATH',
+        help='use pre-trained model')
+    #Device options
+    parser.add_argument(
+        '--gpu-id', 
+        default='0,1,2,3', 
+        type=str,
+        help='id(s) for CUDA_VISIBLE_DEVICES')
+    parser.add_argument(
+        '--predDistance', 
+        default=4, type=int,
+        help='predict how many frames away')
+    parser.add_argument(
+        '--seperate2d', 
+        type=int, 
+        default=0, 
+        help='manual seed')
+    parser.add_argument(
+        '--batchSize', 
+        default=36, 
+        type=int,
+        help='batchSize')
+    parser.add_argument(
+        '--T', 
+        default=512**-.5, 
+        type=float,
+        help='temperature')
+    parser.add_argument(
+        '--gridSize', 
+        default=9, 
+        type=int,
+        help='temperature')
+    parser.add_argument(
+        '--classNum', 
+        default=51, 
+        type=int,
+        help='temperature')
+    parser.add_argument(
+        '--lamda', 
+        default=0.1, 
+        type=float,
+        help='temperature')
+    parser.add_argument(
+        '--pretrained_imagenet', 
+        type=str_to_bool, 
+        nargs='?', 
+        const=True, 
+        default=False,
+        help='pretrained_imagenet')
+
+    parser.add_argument(
+        '--videoLen', 
+        default=4, 
+        type=int,
+        help='')
+    parser.add_argument(
+        '--frame_gap', 
+        default=2, 
+        type=int,
+        help='')
+    parser.add_argument(
+        '--hist', 
+        default=1, 
+        type=int,
+        help='')
+    parser.add_argument(
+        '--optim', 
+        default='adam', 
+        type=str,
+        help='')
+
+    # 3D-ResNets-PyTorch
+
+    parser.add_argument(
         '--root_path',
-        default='/root/data/ActivityNet',
+        default='/home/martine/Afstudeerproject/data',
         type=str,
         help='Root directory path of data')
     parser.add_argument(
         '--video_path',
-        default='video_kinetics_jpg',
+        default='hmdb_videos/jpg',
         type=str,
         help='Directory path of Videos')
     parser.add_argument(
         '--annotation_path',
-        default='kinetics.json',
+        default='hmdb51_1.json',
         type=str,
         help='Annotation file path')
     parser.add_argument(
@@ -25,19 +183,19 @@ def parse_opts():
         help='Result directory path')
     parser.add_argument(
         '--dataset',
-        default='kinetics',
+        default='hmdb51',
         type=str,
         help='Used dataset (activitynet | kinetics | ucf101 | hmdb51)')
     parser.add_argument(
         '--n_classes',
-        default=400,
+        default=51,
         type=int,
         help=
         'Number of classes (activitynet: 200, kinetics: 400, ucf101: 101, hmdb51: 51)'
     )
     parser.add_argument(
         '--n_finetune_classes',
-        default=400,
+        default=51,
         type=int,
         help=
         'Number of classes for fine-tuning. n_classes is set to the number when pretraining.'
@@ -184,7 +342,7 @@ def parse_opts():
     parser.set_defaults(no_cuda=False)
     parser.add_argument(
         '--n_threads',
-        default=4,
+        default=12,
         type=int,
         help='Number of threads for multi-thread loading')
     parser.add_argument(
