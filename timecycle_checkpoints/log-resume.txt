@@ -1,1 +1,0 @@
-Learning Rate	Train Loss	Theta Loss	Theta Skip Loss	
