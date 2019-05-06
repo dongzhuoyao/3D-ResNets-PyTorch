@@ -123,7 +123,8 @@ def train_video_cycle(args):
 
     print("Model is made")
 
-    model = torch.nn.DataParallel(model).cuda()
+    #model = torch.nn.DataParallel(model).cuda()
+    model = model.cuda()
 
     cudnn.benchmark = False
     print('    Total params: %.2fM' % (sum(p.numel() for p in model.parameters())/1000000.0))
@@ -260,7 +261,7 @@ def train(params, train_loader, model, criterion, optimizer, epoch, use_cuda, ar
 
         outputs = model(imgs, patch2, img, theta)
 
-        losses = model.module.loss(*outputs)
+        losses = model.loss(*outputs)
         loss_targ_theta, loss_targ_theta_skip, loss_back_inliers = losses
 
         loss = sum(loss_targ_theta) / len(loss_targ_theta) * args.lamda + \
