@@ -29,10 +29,10 @@ class CycleTime(nn.Module):
         super(CycleTime, self).__init__()
 
         dim = 512
-        print("Pretrained imagenet:", pretrained)
+        #print("Pretrained imagenet:", pretrained)
 
         resnet = resnet_res4s1.resnet18(pretrained=pretrained)
-        print("RESNET 18:", resnet)
+        #print("RESNET 18:", resnet)
 
         #resnet_50 = resnet_res4s1.resnet50(pretrained=pretrained)
         #print("RESNET 50:", resnet_50)

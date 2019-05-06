@@ -170,42 +170,33 @@ def generate_model(opt):
             pretrain = torch.load(opt.pretrain_path)
             #assert opt.arch == pretrain['arch']
 
-            # create new OrderedDict that does not contain `module.`
-            #from collections import OrderedDict
-            #new_pretrain = OrderedDict()
-            #for k, v in pretrain.items():
-            #    name = k[7:] # remove `module.`
-            #    new_pretrain[name] = v
-            # load params
-
             pretrained_dict = pretrain['state_dict']
             # print("PRETRAIN BEFORE:", pretrained_dict.keys())
             model_dict = model.state_dict()
 
-            print("Current model:", model.state_dict().keys())
-            print("Pretrained model:", pretrain['state_dict'].keys())
+            #print("Current model:", model.state_dict().keys())
+            #print("Pretrained model:", pretrain['state_dict'].keys())
+            
 
             # 1. filter out unnecessary keys
-            pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+            #pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
             # 2. overwrite entries in the existing state dict
-            print("Pretrained model after:", pretrained_dict.keys())
-            model_dict.update(pretrained_dict)
+
+
+            pretrained_dict.update(model_dict)
+            #print("Pretrained model after:", len(model_dict.keys()))
             # 3. load the new state dict
-            model.load_state_dict(pretrained_dict, strict=False)
+            model.load_state_dict(pretrained_dict)
 
+            
 
-            #print("PRETRAIN AFTER:", pretrained_dict.keys())
-
-            if opt.model == 'densenet':
-                model.module.classifier = nn.Linear(
-                    model.module.classifier.in_features, opt.n_finetune_classes)
-                model.module.classifier = model.module.classifier.cuda()
-            else:
-                model.module.fc = nn.Linear(model.module.fc.in_features,
+            
+            model.module.fc = nn.Linear(model.module.fc.in_features,
                                             opt.n_finetune_classes)
-                model.module.fc = model.module.fc.cuda()
+            model.module.fc = model.module.fc.cuda()
 
             parameters = get_fine_tuning_parameters(model, opt.ft_begin_index)
+
             return model, parameters
     else:
         if opt.pretrain_path:

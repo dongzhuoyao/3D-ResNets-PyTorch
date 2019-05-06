@@ -41,15 +41,17 @@ if __name__ == '__main__':
             opt.resume_path = os.path.join(opt.root_path, opt.resume_path)
         if opt.pretrain_path:
             opt.pretrain_path = os.path.join(opt.root_path, opt.pretrain_path)
+
+
     opt.scales = [opt.initial_scale]
     for i in range(1, opt.n_scales):
         opt.scales.append(opt.scales[-1] * opt.scale_step)
     opt.arch = '{}-{}'.format(opt.model, opt.model_depth)
     opt.mean = get_mean(opt.norm_value, dataset=opt.mean_dataset)
     opt.std = get_std(opt.norm_value)
-    print(opt)
-    # with open(os.path.join(opt.result_path, 'opts.json'), 'w') as opt_file:
-    #     json.dump(vars(opt), opt_file)
+    #print(opt)
+    with open(os.path.join(opt.result_path, 'opts.json'), 'w') as opt_file:
+        json.dump(vars(opt), opt_file)
 
     torch.manual_seed(opt.manual_seed)
 
@@ -84,35 +86,35 @@ if __name__ == '__main__':
         target_transform = ClassLabel()
         training_data = get_training_set(opt, spatial_transform,
                                          temporal_transform, target_transform)
-        #train_loader = torch.utils.data.DataLoader(
-        #    training_data,
-        #    batch_size=opt.batch_size,
-        #    shuffle=True,
-        #    num_workers=opt.n_threads,
-        #    pin_memory=True)
+        train_loader = torch.utils.data.DataLoader(
+           training_data,
+           batch_size=opt.batch_size,
+           shuffle=True,
+           num_workers=opt.n_threads,
+           pin_memory=True)
 
-        #train_logger = Logger(
-        #    os.path.join(opt.result_path, 'train.log'),
-        #    ['epoch', 'loss', 'acc', 'lr'])
-        #train_batch_logger = Logger(
-        #    os.path.join(opt.result_path, 'train_batch.log'),
-        #    ['epoch', 'batch', 'iter', 'loss', 'acc', 'lr'])
+        train_logger = Logger(
+           os.path.join(opt.result_path, 'train.log'),
+           ['epoch', 'loss', 'acc', 'lr'])
+        train_batch_logger = Logger(
+           os.path.join(opt.result_path, 'train_batch.log'),
+           ['epoch', 'batch', 'iter', 'loss', 'acc', 'lr'])
 
         if opt.nesterov:
             dampening = 0
         else:
             dampening = opt.dampening
-        #optimizer = optim.SGD(
-        #    parameters,
-        #    lr=opt.learning_rate,
-        #    momentum=opt.momentum,
-        #    dampening=dampening,
-        #    weight_decay=opt.weight_decay,
-        #    nesterov=opt.nesterov)
-        #scheduler = lr_scheduler.ReduceLROnPlateau(
-        #    optimizer, 
-        #    'min', 
-        #    patience=opt.lr_patience)
+        optimizer = optim.SGD(
+           parameters,
+           lr=opt.learning_rate,
+           momentum=opt.momentum,
+           dampening=dampening,
+           weight_decay=opt.weight_decay,
+           nesterov=opt.nesterov)
+        scheduler = lr_scheduler.ReduceLROnPlateau(
+           optimizer, 
+           'min', 
+           patience=opt.lr_patience)
     if not opt.no_val:
         spatial_transform = Compose([
             Scale(opt.sample_size),
@@ -124,14 +126,14 @@ if __name__ == '__main__':
         validation_data = get_validation_set(
             opt, spatial_transform, temporal_transform, target_transform)
 
-        # val_loader = torch.utils.data.DataLoader(
-        #     validation_data,
-        #     batch_size=opt.batch_size,
-        #     shuffle=False,
-        #     num_workers=opt.n_threads,
-        #     pin_memory=True)
-        # val_logger = Logger(
-        #     os.path.join(opt.result_path, 'val.log'), ['epoch', 'loss', 'acc'])
+        val_loader = torch.utils.data.DataLoader(
+            validation_data,
+            batch_size=opt.batch_size,
+            shuffle=False,
+            num_workers=opt.n_threads,
+            pin_memory=True)
+        val_logger = Logger(
+            os.path.join(opt.result_path, 'val.log'), ['epoch', 'loss', 'acc'])
 
     if opt.resume_path:
         print('loading checkpoint {}'.format(opt.resume_path))
@@ -145,17 +147,17 @@ if __name__ == '__main__':
 
     #print("MODEL:", model.state_dict().keys())
 
-    # print('run')
-    # for i in range(opt.begin_epoch, opt.n_epochs + 1):
-    #     if not opt.no_train:
-    #         train_epoch(i, train_loader, model, criterion, optimizer, opt,
-    #                     train_logger, train_batch_logger)
-    #     if not opt.no_val:
-    #         validation_loss = val_epoch(i, val_loader, model, criterion, opt,
-    #                                     val_logger)
+    print('run')
+    for i in range(opt.begin_epoch, opt.n_epochs + 1):
+        if not opt.no_train:
+            train_epoch(i, train_loader, model, criterion, optimizer, opt,
+                        train_logger, train_batch_logger)
+        if not opt.no_val:
+            validation_loss = val_epoch(i, val_loader, model, criterion, opt,
+                                        val_logger)
 
-    #     if not opt.no_train and not opt.no_val:
-    #         scheduler.step(validation_loss)
+        if not opt.no_train and not opt.no_val:
+            scheduler.step(validation_loss)
 
     if opt.test:
         spatial_transform = Compose([

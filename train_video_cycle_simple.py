@@ -134,7 +134,7 @@ def train_video_cycle(args):
         optimizer = optim.SGD(model.parameters(), 
                           lr=args.u_lr, 
                           weight_decay=args.u_wd, 
-                          momentum=0.95, 
+                          momentum=0.95
                           #dampening=0.9,
                           #nesterov=False
                           )
@@ -169,37 +169,39 @@ def train_video_cycle(args):
 
         del checkpoint
 
-    # else:
-    #     logger = Logger(os.path.join(args.path_checkpoint, 'log.txt'), title=title)
-    #     logger.set_names(['Learning Rate', 'Train Loss', 'Theta Loss', 'Theta Skip Loss'])
+    else:
+        logger = Logger(os.path.join(args.path_checkpoint, 'log.txt'), title=title)
+        logger.set_names(['Learning Rate', 'Train Loss', 'Theta Loss', 'Theta Skip Loss'])
 
-    # train_loader = torch.utils.data.DataLoader(
-    #     vlog.VlogSet(params, is_train=True, frame_gap=args.frame_gap),
-    #     batch_size=params['batchSize'], 
-    #     shuffle=True,
-    #     num_workers=args.workers, 
-    #     pin_memory=True)
+    train_loader = torch.utils.data.DataLoader(
+        vlog.VlogSet(params, is_train=True, frame_gap=args.frame_gap),
+        batch_size=params['batchSize'], 
+        shuffle=True,
+        num_workers=args.workers, 
+        pin_memory=True)
 
-    # # Train and val
-    # for epoch in range(start_epoch, args.epochs):
-    #     print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, state['lr']))
+    print(train_loader)
 
-    #     train_loss, theta_loss, theta_skip_loss = train(train_loader, model, criterion, optimizer, epoch, use_cuda, args)
+    # Train and val
+    for epoch in range(start_epoch, args.epochs):
+        #print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, state['lr']))
 
-    #     # append logger file
-    #     print("TRAIN LOSS:", train_loss[0])
-    #     print("THETA LOSS:", theta_loss[0])
-    #     print("THETA_SKIP_LOSS", theta_skip_loss[0])
-    #     logger.append([state['lr'], train_loss[0], theta_loss[0], theta_skip_loss[0]])
+        train_loss, theta_loss, theta_skip_loss = train(params, train_loader, model, criterion, optimizer, epoch, use_cuda, args)
 
-    #     if epoch % 1 == 0:
-    #         save_checkpoint({
-    #                 'epoch': epoch + 1,
-    #                 'state_dict': model.state_dict(),
-    #                 'optimizer': optimizer.state_dict()
-    #             }, checkpoint=args.path_checkpoint)
+        # append logger file
+        print("TRAIN LOSS:", train_loss[0])
+        print("THETA LOSS:", theta_loss[0])
+        print("THETA_SKIP_LOSS", theta_skip_loss[0])
+        logger.append([state['lr'], train_loss[0], theta_loss[0], theta_skip_loss[0]])
 
-    # logger.close()
+        if epoch % 1 == 0:
+            save_checkpoint({
+                    'epoch': epoch + 1,
+                    'state_dict': model.state_dict(),
+                    'optimizer': optimizer.state_dict()
+                }, checkpoint=args.path_checkpoint)
+
+    logger.close()
 
 
 def set_bn_eval(m):
@@ -207,7 +209,7 @@ def set_bn_eval(m):
     if classname.find('BatchNorm') != -1:
       m.eval()
 
-def train(train_loader, model, criterion, optimizer, epoch, use_cuda, args):
+def train(params, train_loader, model, criterion, optimizer, epoch, use_cuda, args):
     # switch to train mode
     model.train()
     # model.apply(set_bn_eval)
@@ -233,6 +235,7 @@ def train(train_loader, model, criterion, optimizer, epoch, use_cuda, args):
 
     for batch_idx, (imgs, img, patch2, theta, meta) in enumerate(train_loader):
          
+
         # measure data loading time
         data_time.update(time.time() - end)
         optimizer.zero_grad()
