@@ -24,6 +24,9 @@ import test
 import eval_hmdb51
 import train_video_cycle_simple
 
+import os
+os.environ['CUDA_VISIBLE_DEVICES']='0'
+
 if __name__ == '__main__':
     opt = parse_opts()
     #print(torch.__version__)
