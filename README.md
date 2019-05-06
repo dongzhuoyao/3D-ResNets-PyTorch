@@ -1,3 +1,21 @@
+for example
+
+scratch split 2 
+
+python3 main.py --root_path ~/data --video_path hmdb_videos/jpg --annotation_path hmdb51_2.json --result_path results_scratch_2 --no_val --test --eval
+
+
+
+scratch split 2 unsupervised pretraining..
+
+
+python3 main.py --unsupervised_pretrain --data ~/data/hmdb_videos/jpg --epochs 100 --path_checkpoint ~/data/timecycle_checkpoint_2 --list hmdb_2.txt --root_path home/martine/data --pretrain_path timecycle_checkpoint_2/checkpoint_100.pth --annotation_path hmdb51_2.json --result_path results_timecycle_2 --no_val --test --learning_rate 0.001 --weight_decay 0.00001 --ft_begin_index 4 --eval 
+
+
+
+____________________
+
+
 # 3D ResNets for Action Recognition
 
 ## Update (2018/2/21)

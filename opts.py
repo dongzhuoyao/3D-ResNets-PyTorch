@@ -20,13 +20,13 @@ def parse_opts():
         # Datasets
     parser.add_argument(
         '-d', '--data', 
-        default='~/Afstudeerproject/data/hmdb_videos/jpg',
+        default='~/data/hmdb_videos/jpg',
         help='path to dataset', 
         type=str)
     parser.add_argument(
         '-l', 
         '--list', 
-        default='~/Afstudeerproject/data/hmdb_1.txt',
+        default='~/data/hmdb_1.txt',
         help='path to video list', 
         type=str)
     parser.add_argument(
@@ -67,7 +67,7 @@ def parse_opts():
     parser.add_argument(
         '-pc', 
         '--path_checkpoint', 
-        default='~/Afstudeerproject/data/results_timecycle',
+        default='~/data/results_timecycle_1',
         type=str, 
         metavar='PATH',
         help='path to save checkpoint (default: checkpoint)')
@@ -163,7 +163,7 @@ def parse_opts():
 
     parser.add_argument(
         '--root_path',
-        default='/home/mtoering/data',
+        default='~/data',
         type=str,
         help='Root directory path of data')
     parser.add_argument(
