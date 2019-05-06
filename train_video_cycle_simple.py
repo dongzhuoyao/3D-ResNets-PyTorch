@@ -114,7 +114,12 @@ def train_video_cycle(args):
     #if not os.path.isdir(args.checkpoint):
     #    mkdir_p(args.checkpoint)
 
-    model = models.CycleTime(class_num=params['classNum'], trans_param_num=3, pretrained=args.pretrained_imagenet, temporal_out=params['videoLen'], T=args.T, hist=args.hist)
+    model = models.CycleTime(class_num=params['classNum'], 
+                             trans_param_num=3, 
+                             pretrained=args.pretrained_imagenet, 
+                             temporal_out=params['videoLen'], 
+                             T=args.T, 
+                             hist=args.hist)
 
     print("Model is made")
 
@@ -184,7 +189,7 @@ def train_video_cycle(args):
 
     # Train and val
     for epoch in range(start_epoch, args.epochs):
-        #print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, state['lr']))
+        print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, state['u_lr']))
 
         train_loss, theta_loss, theta_skip_loss = train(params, train_loader, model, criterion, optimizer, epoch, use_cuda, args)
 
@@ -192,7 +197,7 @@ def train_video_cycle(args):
         print("TRAIN LOSS:", train_loss[0])
         print("THETA LOSS:", theta_loss[0])
         print("THETA_SKIP_LOSS", theta_skip_loss[0])
-        logger.append([state['lr'], train_loss[0], theta_loss[0], theta_skip_loss[0]])
+        logger.append([state['u_lr'], train_loss[0], theta_loss[0], theta_skip_loss[0]])
 
         if epoch % 1 == 0:
             save_checkpoint({
