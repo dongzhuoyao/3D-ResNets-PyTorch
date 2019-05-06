@@ -21,6 +21,7 @@ from utils import Logger
 from train import train_epoch
 from validation import val_epoch
 import test
+import eval_hmdb51
 
 if __name__ == '__main__':
     opt = parse_opts()
@@ -29,6 +30,7 @@ if __name__ == '__main__':
     if opt.root_path != '':
         opt.video_path = os.path.join(opt.root_path, opt.video_path)
         opt.annotation_path = os.path.join(opt.root_path, opt.annotation_path)
+        folder = opt.result_path
         opt.result_path = os.path.join(opt.root_path, opt.result_path)
         if opt.resume_path:
             opt.resume_path = os.path.join(opt.root_path, opt.resume_path)
@@ -167,3 +169,16 @@ if __name__ == '__main__':
             num_workers=opt.n_threads,
             pin_memory=True)
         test.test(test_loader, model, opt, test_data.class_names)
+
+    if opt.eval:
+        name = opt.result_path + '/' + folder + '_' + opt.n_epochs + '.txt'
+        print("Name:", name)
+        if opt.test_subset == "val":
+            prediction = os.path.join(opt.result_path, "val.json")
+            subset = "validation"
+        if opt.test_subset == "test":
+            prediction = os.path.join(opt.result_path, "test.json")
+            subset = "testing"
+        eval_hmdb51.eval_hmdb51(name, opt.annotation_path, prediction, subset, 1)
+
+

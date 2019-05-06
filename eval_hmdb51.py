@@ -5,9 +5,15 @@ import sys
 import numpy as np
 import pandas as pd
 
+def eval_hmdb51(name, annotation_path, prediction_path, test_subset, top_k):
+    hmdb_classification = HMDBclassification(name, annotation_path, prediction_path, subset=test_subset, top_k=top_k)
+    hmdb_classification.evaluate(name)
+    with open(name, 'a') as f:
+        f.write(str(hmdb_classification.hit_at_k))
+
 class HMDBclassification(object):
 
-    def __init__(self, ground_truth_filename=None, prediction_filename=None,
+    def __init__(self, name, ground_truth_filename=None, prediction_filename=None,
                  subset='validation', verbose=False, top_k=1):
         if not ground_truth_filename:
             raise IOError('Please input a valid ground truth file.')
@@ -23,12 +29,14 @@ class HMDBclassification(object):
             ground_truth_filename)
         self.prediction = self._import_prediction(prediction_filename)
 
-        if self.verbose:
-            print('[INIT] Loaded annotations from {} subset.'.format(subset))
+        with open(name, 'w') as f:
+            f.write('{}\n'.format(name))
+            print("Write evaluation results to file")
+            f.write('[INIT] Loaded annotations from {} subset.\n'.format(subset))
             nr_gt = len(self.ground_truth)
-            print('\tNumber of ground truth instances: {}'.format(nr_gt))
+            f.write('\tNumber of ground truth instances: {}\n'.format(nr_gt))
             nr_pred = len(self.prediction)
-            print('\tNumber of predictions: {}'.format(nr_pred))
+            f.write('\tNumber of predictions: {}\n'.format(nr_pred))
 
     def _import_ground_truth(self, ground_truth_filename):
         """Reads ground truth file, checks if it is well formatted, and returns
@@ -102,17 +110,17 @@ class HMDBclassification(object):
                                    'score': score_lst})
         return prediction
 
-    def evaluate(self):
+    def evaluate(self, name):
         """Evaluates a prediction file. For the detection task we measure the
         interpolated mean average precision to measure the performance of a
         method.
         """
         hit_at_k = compute_video_hit_at_k(self.ground_truth,
                                           self.prediction, top_k=self.top_k)
-        if self.verbose:
-            print('[RESULTS] Performance on ActivityNet untrimmed video '
-                   'classification task.')
-            print('\tError@{}: {}'.format(self.top_k, 1.0 - hit_at_k))
+        with open(name, 'a') as f:
+            f.write('[RESULTS] Performance on ActivityNet untrimmed video '
+                   'classification task.\n')
+            f.write('\tError@{}: {}\n'.format(self.top_k, 1.0 - hit_at_k))
             #print '\tAvg Hit@{}: {}'.format(self.top_k, avg_hit_at_k)
         self.hit_at_k = hit_at_k
 
@@ -158,10 +166,8 @@ def compute_video_hit_at_k(ground_truth, prediction, top_k=3):
 
 
 if __name__ == '__main__':
-    ground_truth_path = sys.argv[1]
-    prediction_path = sys.argv[2]
-    subset = sys.argv[3]
-
-    hmdb_classification = HMDBclassification(ground_truth_path, prediction_path, subset, verbose=True, top_k=1)
-    hmdb_classification.evaluate()
-    print(hmdb_classification.hit_at_k)
+    name = sys.argv[1]
+    ground_truth_path = sys.argv[2]
+    prediction_path = sys.argv[3]
+    test_subset = sys.argv[4]
+    eval_hmdb51(name, ground_truth_path, prediction_path, test_subset=test_subset, top_k=1)

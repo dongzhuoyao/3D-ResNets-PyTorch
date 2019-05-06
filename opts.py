@@ -227,6 +227,13 @@ def parse_opts():
         help='ResNeXt cardinality')
     parser.add_argument(
         '--manual_seed', default=1, type=int, help='Manually set random seed')
+    parser.add_argument(
+        '--eval', action='store_true', help='If true, evaluation is done.')
+    # parser.add_argument(
+    #     '--top_k', 
+    #     type=int, 
+    #     default=1, 
+    #     help='Top 1 or top 5 accuracy for evaluation')
 
     args = parser.parse_args()
 
